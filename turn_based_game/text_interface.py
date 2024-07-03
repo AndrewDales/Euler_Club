@@ -24,7 +24,9 @@ class TextInterface:
 
     def _handle_input(self):
         direction = input('Enter N,E,W or S to move: ')
-        self.player.move(direction)
+        collision_character = self.game.move_character(self.player, direction)
+        if collision_character:
+            print(f"{self.player} meets {collision_character}")
 
     def main_loop(self):
         print("Welcome to Andrew's Game")

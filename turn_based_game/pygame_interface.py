@@ -12,7 +12,7 @@ from pygame.locals import (
     QUIT,
 )
 
-SQUARE_SIZE = 60
+SQUARE_SIZE = 30
 
 
 class CharacterSprite(pygame.sprite.Sprite):
@@ -37,9 +37,10 @@ class GameGUI:
     def __init__(self):
         pygame.init()
 
-        self.game = Game()
+        self.game = Game(20, 20)
         self.player = self.game.characters[0]
-        self.player.sprite = CharacterSprite()
+        for character in self.game.characters:
+            character.sprite = CharacterSprite()
 
         self.screen = pygame.display.set_mode([self.game.n_cols * SQUARE_SIZE,
                                                self.game.n_rows * SQUARE_SIZE])
@@ -49,7 +50,6 @@ class GameGUI:
     def _convert_position(grid_position):
         return (SQUARE_SIZE * grid_position[0] + SQUARE_SIZE // 2,
                 SQUARE_SIZE * grid_position[1] + SQUARE_SIZE // 2)
-
 
     def main_loop(self):
         while self.running:
@@ -66,13 +66,16 @@ class GameGUI:
 
             if event.type == KEYDOWN and event.key in self.key_moves:
                 direction = self.key_moves[event.key]
-                self.player.move(direction)
+                collision_character = self.game.move_character(self.player, direction)
+                if collision_character:
+                    print(f"{self.player} meets {collision_character}")
 
     def _draw(self):
-        self.screen.fill((0,0,0))
-        coord_pos = self._convert_position(self.player.position)
-        player_rect = self.player.sprite.surf.get_rect(center=coord_pos)
-        self.screen.blit(self.player.sprite.surf, player_rect)
+        self.screen.fill((0, 0, 0))
+        for character in self.game.characters:
+            coord_pos = self._convert_position(character.position)
+            char_rect = character.sprite.surf.get_rect(center=coord_pos)
+            self.screen.blit(character.sprite.surf, char_rect)
         pygame.display.flip()
 
 
