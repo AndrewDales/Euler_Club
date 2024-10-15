@@ -6,7 +6,7 @@ from pygame.locals import (
     K_RIGHT,
     K_UP,
     K_DOWN,
-    K_SPACE,
+    # K_SPACE,
     K_ESCAPE,
     KEYDOWN,
     QUIT,
@@ -45,6 +45,7 @@ class GameGUI:
         self.screen = pygame.display.set_mode([self.game.n_cols * SQUARE_SIZE,
                                                self.game.n_rows * SQUARE_SIZE])
         self.running = True
+        self.move_direction = None
 
     @staticmethod
     def _convert_position(grid_position):
@@ -54,10 +55,13 @@ class GameGUI:
     def main_loop(self):
         while self.running:
             self._handle_input()
+            self._process_game_logic()
             self._draw()
         pygame.quit()
 
     def _handle_input(self):
+        """ Checks key presses and adjusts GameGUI attributes depending on the presses """
+        self.move_direction = None
         for event in pygame.event.get():
             # Quit conditions
             if (event.type == QUIT or
@@ -65,10 +69,14 @@ class GameGUI:
                 self.running = False
 
             if event.type == KEYDOWN and event.key in self.key_moves:
-                direction = self.key_moves[event.key]
-                collision_character = self.game.move_character(self.player, direction)
-                if collision_character:
-                    print(f"{self.player} meets {collision_character}")
+                self.move_direction = self.key_moves[event.key]
+
+    def _process_game_logic(self):
+        """ Implements character moves and checks for collisions """
+        if self.move_direction:
+            collision_character = self.game.move_character(self.player, self.move_direction)
+            if collision_character:
+                print(f"{self.player} meets {collision_character}")
 
     def _draw(self):
         self.screen.fill((0, 0, 0))
